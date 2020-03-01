@@ -14,6 +14,10 @@ class ComposeViewModel(private val api: GithubApi) : ViewModel() {
   private val channel = ConflatedBroadcastChannel(ViewState.empty())
 
   private var job: Job? = null
+    set(value) {
+      job?.cancel()
+      field = value
+    }
 
   fun initialState(): ViewState = channel.value
 
@@ -28,7 +32,6 @@ class ComposeViewModel(private val api: GithubApi) : ViewModel() {
     sendNewValue {
       it.copy(listState = ListState.Loading)
     }
-    job?.cancel()
     job = viewModelScope.launch {
       try {
         val response = withContext(Dispatchers.IO) {
