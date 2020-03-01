@@ -7,14 +7,14 @@ import org.koin.dsl.module
 
 class MyApp : Application() {
 
-    private val module = module {
-        viewModel { ComposeViewModel() }
-    }
+  private val module = module {
+    viewModel { ComposeViewModel() }
+  }
 
-    override fun onCreate() {
-        super.onCreate()
-        startKoin {
-            modules(module)
-        }
+  override fun onCreate() {
+    super.onCreate()
+    startKoin {
+      modules(module)
     }
+  }
 }

@@ -18,54 +18,55 @@ import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
-    private val viewModel: ComposeViewModel by viewModel()
+  private val viewModel: ComposeViewModel by viewModel()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                view()
-            }
-        }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContent {
+      MaterialTheme {
+        view()
+      }
     }
+  }
 
-    @Composable
-    private fun view() {
-        val state = state { viewModel.initialState() }
-        lifecycleScope.launch {
-            viewModel.state().collect { state.value = it }
-        }
-        Column {
-            TextField(state.value.name, onValueChange = viewModel::onNameChanged)
-            Text("Current: ${state.value.result}")
-        }
+  @Composable
+  private fun view() {
+    val state = state { viewModel.initialState() }
+    lifecycleScope.launch {
+      viewModel.state().collect { state.value = it }
     }
+    Column {
+      TextField(state.value.name, onValueChange = viewModel::onNameChanged)
+      Text("Current: ${state.value.result}")
+    }
+  }
 }
 
 data class Model(val result: String, val name: String) {
-    companion object {
-        fun empty() = Model("", "")
-    }
+  companion object {
+    fun empty() = Model("", "")
+  }
 }
 
 class ComposeViewModel : ViewModel() {
 
-    private val channel = ConflatedBroadcastChannel(Model.empty())
+  private val channel = ConflatedBroadcastChannel(Model.empty())
 
-    fun initialState(): Model = channel.value
+  fun initialState(): Model = channel.value
 
-    fun state(): Flow<Model> = channel.asFlow()
+  fun state(): Flow<Model> = channel.asFlow()
 
-    fun onNameChanged(name: String) {
-        channel.sendBlocking(Model(
-                name = name,
-                result = name.let {
-                    if (name == CORRECT_PASSWORD) "Correct!" else "Nope :("
-                }
-        ))
-    }
+  fun onNameChanged(name: String) {
+    channel.sendBlocking(
+      Model(
+        name = name,
+        result = name.let {
+          if (name == CORRECT_PASSWORD) "Correct!" else "Nope :("
+        }
+      ))
+  }
 
-    private companion object {
-        const val CORRECT_PASSWORD = "Password1"
-    }
+  private companion object {
+    const val CORRECT_PASSWORD = "Password1"
+  }
 }
