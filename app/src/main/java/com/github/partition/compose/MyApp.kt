@@ -10,10 +10,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 class MyApp : Application() {
 
   private val module = module {
-    single { Retrofit.Builder()
-      .baseUrl("https://api.github.com")
-      .addConverterFactory(GsonConverterFactory.create())
-      .build()
+    single {
+      Retrofit.Builder()
+        .baseUrl("https://api.github.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
     }
     single {
       val retrofit: Retrofit = get()
