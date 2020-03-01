@@ -2,18 +2,14 @@ package com.github.partition.compose
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.*
-import androidx.lifecycle.ViewModel
+import androidx.compose.Composable
 import androidx.lifecycle.lifecycleScope
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.core.setContent
 import androidx.ui.layout.Column
+import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.flow.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
@@ -37,47 +33,39 @@ class MainActivity : AppCompatActivity() {
       scope = lifecycleScope
     )
     Column {
-      TextField(state.value.name, onValueChange = viewModel::onNameChanged)
-      Text("Current: ${state.value.result}")
+      TextField(
+        value = state.value.searchPhrase,
+        onValueChange = viewModel::onSearchPhraseChange
+      )
+      Button("Search", onClick = viewModel::onSearchClicked)
+      when (val listState = state.value.listState) {
+        ListState.Error -> errorView()
+        ListState.Loading -> loadingView()
+        ListState.Empty -> emptyView()
+        is ListState.Repositories -> listView(listState.repos)
+      }
     }
   }
-}
 
-fun <T> flowState(
-  initialState: () -> T,
-  flow: Flow<T>,
-  scope: CoroutineScope
-): State<T> = state { initialState() }.also { state ->
-  scope.launch {
-    flow.collect { state.value = it }
-  }
-}
-
-data class Model(val result: String, val name: String) {
-  companion object {
-    fun empty() = Model("", "")
-  }
-}
-
-class ComposeViewModel : ViewModel() {
-
-  private val channel = ConflatedBroadcastChannel(Model.empty())
-
-  fun initialState(): Model = channel.value
-
-  fun state(): Flow<Model> = channel.asFlow()
-
-  fun onNameChanged(name: String) {
-    channel.sendBlocking(
-      Model(
-        name = name,
-        result = name.let {
-          if (name == CORRECT_PASSWORD) "Correct!" else "Nope :("
-        }
-      ))
+  @Composable
+  private fun listView(list: List<Repository>) {
+    list.forEach {
+      Text(it.name)
+    }
   }
 
-  private companion object {
-    const val CORRECT_PASSWORD = "Password1"
+  @Composable
+  private fun emptyView() {
+    Text("Start typing")
+  }
+
+  @Composable
+  private fun loadingView() {
+    Text("Loading...")
+  }
+
+  @Composable
+  private fun errorView() {
+    Text("Error occurred")
   }
 }
