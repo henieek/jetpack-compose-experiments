@@ -9,6 +9,7 @@ import androidx.ui.core.TextField
 import androidx.ui.core.setContent
 import androidx.ui.layout.Column
 import androidx.ui.material.Button
+import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.MaterialTheme
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -33,39 +34,27 @@ class MainActivity : AppCompatActivity() {
       scope = lifecycleScope
     )
     Column {
-      TextField(
-        value = state.value.searchPhrase,
-        onValueChange = viewModel::onSearchPhraseChange
-      )
-      Button("Search", onClick = viewModel::onSearchClicked)
-      when (val listState = state.value.listState) {
-        ListState.Error -> errorView()
-        ListState.Loading -> loadingView()
-        ListState.Empty -> emptyView()
-        is ListState.Repositories -> listView(listState.repos)
-      }
+      searchBar(state.value)
+      listView(state.value)
     }
   }
 
   @Composable
-  private fun listView(list: List<Repository>) {
-    list.forEach {
-      Text(it.name)
+  private fun searchBar(state: ViewState) {
+    TextField(
+      value = state.searchPhrase,
+      onValueChange = viewModel::onSearchPhraseChange
+    )
+    Button("Search", onClick = viewModel::onSearchClicked)
+  }
+
+  @Composable
+  private fun listView(state: ViewState) {
+    when (val listState = state.listState) {
+      ListState.Loading -> CircularProgressIndicator()
+      ListState.Error -> Text("Error occurred")
+      ListState.Empty -> Text("Start typing")
+      is ListState.Repositories -> listState.repos.map { Text(it.name) }
     }
-  }
-
-  @Composable
-  private fun emptyView() {
-    Text("Start typing")
-  }
-
-  @Composable
-  private fun loadingView() {
-    Text("Loading...")
-  }
-
-  @Composable
-  private fun errorView() {
-    Text("Error occurred")
   }
 }
