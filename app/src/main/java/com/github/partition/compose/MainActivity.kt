@@ -31,14 +31,25 @@ class MainActivity : AppCompatActivity() {
 
   @Composable
   private fun view() {
-    val state = state { viewModel.initialState() }
-    lifecycleScope.launch {
-      viewModel.state().collect { state.value = it }
-    }
+    val state = flowState(
+      initialState = viewModel::initialState,
+      flow = viewModel.state(),
+      scope = lifecycleScope
+    )
     Column {
       TextField(state.value.name, onValueChange = viewModel::onNameChanged)
       Text("Current: ${state.value.result}")
     }
+  }
+}
+
+fun <T> flowState(
+  initialState: () -> T,
+  flow: Flow<T>,
+  scope: CoroutineScope
+): State<T> = state { initialState() }.also { state ->
+  scope.launch {
+    flow.collect { state.value = it }
   }
 }
 
