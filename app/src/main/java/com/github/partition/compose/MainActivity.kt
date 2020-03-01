@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.state().collect { state.value = it }
         }
         Column {
-            TextField(state.value.name, onValueChange = { viewModel.onNameChanged(it) })
+            TextField(state.value.name, onValueChange = viewModel::onNameChanged)
             Text("Current: ${state.value.result}")
         }
     }
