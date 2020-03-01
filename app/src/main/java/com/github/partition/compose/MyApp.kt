@@ -16,7 +16,7 @@ class MyApp : Application() {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     }
-    single {
+    factory {
       val retrofit: Retrofit = get()
       retrofit.create(GithubApi::class.java)
     }
