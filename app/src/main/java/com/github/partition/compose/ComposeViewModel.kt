@@ -13,24 +13,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
 
-data class Repository(val name: String)
-
-sealed class ListState {
-  object Empty : ListState()
-  object Loading : ListState()
-  object Error : ListState()
-  data class Repositories(val repos: List<Repository>) : ListState()
-}
-
-data class ViewState(val searchPhrase: String, val listState: ListState) {
-  companion object {
-    fun empty() = ViewState(
-      searchPhrase = "",
-      listState = ListState.Empty
-    )
-  }
-}
-
 class ComposeViewModel(private val api: GithubApi) : ViewModel() {
 
   private val channel = ConflatedBroadcastChannel(ViewState.empty())
@@ -73,5 +55,23 @@ class ComposeViewModel(private val api: GithubApi) : ViewModel() {
     sendNewValue {
       it.copy(searchPhrase = phrase)
     }
+  }
+}
+
+data class Repository(val name: String)
+
+sealed class ListState {
+  object Empty : ListState()
+  object Loading : ListState()
+  object Error : ListState()
+  data class Repositories(val repos: List<Repository>) : ListState()
+}
+
+data class ViewState(val searchPhrase: String, val listState: ListState) {
+  companion object {
+    fun empty() = ViewState(
+      searchPhrase = "",
+      listState = ListState.Empty
+    )
   }
 }
