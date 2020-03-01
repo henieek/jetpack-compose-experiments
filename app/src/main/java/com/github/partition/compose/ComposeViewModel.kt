@@ -3,19 +3,16 @@ package com.github.partition.compose
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.lang.Exception
 
 class ComposeViewModel(private val api: GithubApi) : ViewModel() {
 
   private val channel = ConflatedBroadcastChannel(ViewState.empty())
+
   private var job: Job? = null
 
   fun initialState(): ViewState = channel.value
@@ -42,8 +39,10 @@ class ComposeViewModel(private val api: GithubApi) : ViewModel() {
             Repository(it.fullName)
           }))
         }
-      } catch (e: Exception) {
-        Log.e("ApiError", "Error occurred when retrieving repositories", e)
+      } catch (ignored: CancellationException) {
+        // this is expected when user clicks the search button before the previous coroutine completes
+      } catch (e: Throwable) {
+        Log.d("ApiError", "Error occurred when retrieving repositories", e)
         sendNewValue { oldState ->
           oldState.copy(listState = ListState.Error)
         }
