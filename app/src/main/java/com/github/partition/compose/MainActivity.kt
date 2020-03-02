@@ -21,40 +21,13 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     setContent {
       MaterialTheme {
-        view()
+        val state = flowState(
+          initialState = viewModel::initialState,
+          flow = viewModel.state(),
+          scope = lifecycleScope
+        )
+        ListScreen(viewModel, state)
       }
-    }
-  }
-
-  @Composable
-  private fun view() {
-    val state = flowState(
-      initialState = viewModel::initialState,
-      flow = viewModel.state(),
-      scope = lifecycleScope
-    )
-    Column {
-      searchBar(state.value)
-      listView(state.value)
-    }
-  }
-
-  @Composable
-  private fun searchBar(state: ViewState) {
-    TextField(
-      value = state.searchPhrase,
-      onValueChange = viewModel::onSearchPhraseChange
-    )
-    Button("Search", onClick = viewModel::onSearchClicked)
-  }
-
-  @Composable
-  private fun listView(state: ViewState) {
-    when (val listState = state.listState) {
-      ListState.Loading -> CircularProgressIndicator()
-      ListState.Error -> Text("Error occurred")
-      ListState.Empty -> Text("Start typing")
-      is ListState.Repositories -> listState.repos.map { Text(it.name) }
     }
   }
 }

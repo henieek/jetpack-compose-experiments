@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asFlow
 
 class ComposeViewModel(private val api: GithubApi) : ViewModel() {
 
-  private val channel = ConflatedBroadcastChannel(ViewState.empty())
+  private val channel = ConflatedBroadcastChannel(ListViewState.empty())
 
   private var job: Job? = null
     set(value) {
@@ -19,11 +19,11 @@ class ComposeViewModel(private val api: GithubApi) : ViewModel() {
       field = value
     }
 
-  fun initialState(): ViewState = channel.value
+  fun initialState(): ListViewState = channel.value
 
-  fun state(): Flow<ViewState> = channel.asFlow()
+  fun state(): Flow<ListViewState> = channel.asFlow()
 
-  private fun sendNewValue(evalNewState: (ViewState) -> ViewState) {
+  private fun sendNewValue(evalNewState: (ListViewState) -> ListViewState) {
     val oldState = channel.value
     channel.sendBlocking(evalNewState(oldState))
   }
@@ -69,9 +69,9 @@ sealed class ListState {
   data class Repositories(val repos: List<Repository>) : ListState()
 }
 
-data class ViewState(val searchPhrase: String, val listState: ListState) {
+data class ListViewState(val searchPhrase: String, val listState: ListState) {
   companion object {
-    fun empty() = ViewState(
+    fun empty() = ListViewState(
       searchPhrase = "",
       listState = ListState.Empty
     )
