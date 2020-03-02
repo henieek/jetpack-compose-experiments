@@ -8,7 +8,7 @@ import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
-  private val viewModel: ComposeViewModel by viewModel()
+  private val viewModel: RepoListViewModel by viewModel()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

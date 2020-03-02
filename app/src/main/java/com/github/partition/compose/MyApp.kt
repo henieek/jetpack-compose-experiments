@@ -20,7 +20,7 @@ class MyApp : Application() {
       val retrofit: Retrofit = get()
       retrofit.create(GithubApi::class.java)
     }
-    viewModel { ComposeViewModel(get()) }
+    viewModel { RepoListViewModel(get()) }
   }
 
   override fun onCreate() {

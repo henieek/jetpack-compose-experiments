@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 
-class ComposeViewModel(private val api: GithubApi) : ViewModel() {
+class RepoListViewModel(private val api: GithubApi) : ViewModel() {
 
   private val state = state { ListViewState.empty() }
   private var job: Job? = null
