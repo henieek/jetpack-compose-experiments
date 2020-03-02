@@ -8,7 +8,7 @@ import androidx.ui.material.Button
 import androidx.ui.material.CircularProgressIndicator
 
 @Composable
-fun ListScreen(viewModel: RepoListViewModel) {
+fun RepoListScreen(viewModel: RepoListViewModel) {
 
   val state = viewModel.state()
 

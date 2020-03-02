@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     setContent {
       MaterialTheme {
-        ListScreen(viewModel)
+        RepoListScreen(viewModel)
       }
     }
   }
