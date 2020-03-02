@@ -1,12 +1,12 @@
 package com.github.partition.compose
 
 import android.util.Log
+import androidx.compose.State
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 
 class ComposeViewModel(private val api: GithubApi) : ViewModel() {
@@ -19,9 +19,11 @@ class ComposeViewModel(private val api: GithubApi) : ViewModel() {
       field = value
     }
 
-  fun initialState(): ListViewState = channel.value
-
-  fun state(): Flow<ListViewState> = channel.asFlow()
+  fun state(): State<ListViewState> = flowState(
+    initialState = channel::value,
+    flow = channel.asFlow(),
+    scope = viewModelScope
+  )
 
   private fun sendNewValue(evalNewState: (ListViewState) -> ListViewState) {
     val oldState = channel.value

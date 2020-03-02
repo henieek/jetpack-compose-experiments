@@ -1,7 +1,6 @@
 package com.github.partition.compose
 
 import androidx.compose.Composable
-import androidx.lifecycle.viewModelScope
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.layout.Column
@@ -11,11 +10,7 @@ import androidx.ui.material.CircularProgressIndicator
 @Composable
 fun ListScreen(viewModel: ComposeViewModel) {
 
-  val state = flowState(
-    initialState = viewModel::initialState,
-    flow = viewModel.state(),
-    scope = viewModel.viewModelScope
-  )
+  val state = viewModel.state()
 
   @Composable
   fun searchBar() {
