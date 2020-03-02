@@ -2,32 +2,24 @@ package com.github.partition.compose
 
 import android.util.Log
 import androidx.compose.State
+import androidx.compose.state
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.flow.asFlow
 
 class ComposeViewModel(private val api: GithubApi) : ViewModel() {
 
-  private val channel = ConflatedBroadcastChannel(ListViewState.empty())
-
+  private val state = state { ListViewState.empty() }
   private var job: Job? = null
     set(value) {
       job?.cancel()
       field = value
     }
 
-  fun state(): State<ListViewState> = flowState(
-    initialState = channel::value,
-    flow = channel.asFlow(),
-    scope = viewModelScope
-  )
+  fun state(): State<ListViewState> = state
 
   private fun sendNewValue(evalNewState: (ListViewState) -> ListViewState) {
-    val oldState = channel.value
-    channel.sendBlocking(evalNewState(oldState))
+    state.value = evalNewState(state.value)
   }
 
   fun onSearchClicked() {
@@ -36,8 +28,9 @@ class ComposeViewModel(private val api: GithubApi) : ViewModel() {
     }
     job = viewModelScope.launch {
       try {
+        val searchPhrase = state.value.searchPhrase
         val response = withContext(Dispatchers.IO) {
-          api.search(channel.value.searchPhrase)
+          api.search(searchPhrase)
         }
         sendNewValue { oldState ->
           oldState.copy(listState = ListState.Repositories(response.items.map {
